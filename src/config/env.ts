@@ -17,4 +17,8 @@ export const env = {
   corsOrigin: process.env.CORS_ORIGIN ?? "http://localhost:3000",
   googleClientId: required("GOOGLE_CLIENT_ID"),
   googleClientSecret: required("GOOGLE_CLIENT_SECRET"),
+  cloudinaryCloudName: required("CLOUDINARY_CLOUD_NAME"),
+  cloudinaryApiKey: required("CLOUDINARY_API_KEY"),
+  cloudinaryApiSecret: required("CLOUDINARY_API_SECRET"),
+  cloudinaryFolder: process.env.CLOUDINARY_FOLDER ?? "twitter",
 };
