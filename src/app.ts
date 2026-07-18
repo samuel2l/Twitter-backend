@@ -1,13 +1,31 @@
+import cors from "cors";
 import express, { type Express, type Request, type Response } from "express";
+import { toNodeHandler } from "better-auth/node";
+import { env } from "./config/env.js";
+import { auth } from "./lib/modules/auth/auth.js";
+import { authRoutes } from "./lib/modules/auth/auth.routes.js";
 
 export function createApp(): Express {
   const app = express();
+
+  app.use(
+    cors({
+      origin: env.corsOrigin,
+      credentials: true,
+      methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    }),
+  );
+
+  // Better Auth must be mounted before express.json()
+  app.all("/api/auth/{*any}", toNodeHandler(auth));
 
   app.use(express.json());
 
   app.get("/health", (_req: Request, res: Response) => {
     res.status(200).json({ status: "ok" });
   });
+
+  app.use("/api", authRoutes);
 
   return app;
 }
