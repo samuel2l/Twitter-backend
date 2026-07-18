@@ -75,6 +75,13 @@ export const postMedia = pgTable(
   ],
 );
 
+// Joins: so when we query a post, returned data can include related tables (author, media, etc.)
+//
+// relationName pairs both sides of the same self-link when post has multiple FKs to itself.
+// Same name on both ends of one pair; different name per kind of link.
+// Example — "post_quotes":
+//   quotedPost = the one post this post is quoting (via quotedPostId)
+//   quotes     = all posts that quote this post
 export const postRelations = relations(post, ({ one, many }) => ({
   author: one(user, {
     fields: [post.userId],
