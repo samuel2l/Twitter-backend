@@ -1,4 +1,4 @@
-import { v2 as cloudinary } from "cloudinary";
+import { v2 as cloudinary, type UploadApiResponse } from "cloudinary";
 import { env } from "./env.js";
 
 cloudinary.config({
@@ -8,27 +8,29 @@ cloudinary.config({
   secure: true,
 });
 
-export function createUploadSignature(resourceType: "image" | "video") {
-  const timestamp = Math.round(Date.now() / 1000);
-  const folder = env.cloudinaryFolder;
+export type MediaResourceType = "image" | "video";
 
-  const signature = cloudinary.utils.api_sign_request(
-    {
-      timestamp,
-      folder,
-    },
-    env.cloudinaryApiSecret,
-  );
+export function uploadBuffer(
+  buffer: Buffer,
+  resourceType: MediaResourceType,
+): Promise<UploadApiResponse> {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        folder: env.cloudinaryFolder,
+        resource_type: resourceType,
+      },
+      (error, result) => {
+        if (error || !result) {
+          reject(error ?? new Error("Cloudinary upload failed"));
+          return;
+        }
+        resolve(result);
+      },
+    );
 
-  return {
-    cloudName: env.cloudinaryCloudName,
-    apiKey: env.cloudinaryApiKey,
-    timestamp,
-    folder,
-    signature,
-    resourceType,
-    uploadUrl: `https://api.cloudinary.com/v1_1/${env.cloudinaryCloudName}/${resourceType}/upload`,
-  };
+    stream.end(buffer);
+  });
 }
 
 export { cloudinary };
