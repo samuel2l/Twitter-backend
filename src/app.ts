@@ -4,10 +4,10 @@ import { toNodeHandler } from "better-auth/node";
 import { env } from "./config/env.js";
 import { auth } from "./lib/modules/auth/auth.js";
 import { authRoutes } from "./lib/modules/auth/auth.routes.js";
+import { engagementRoutes } from "./lib/modules/engagement/engagement.routes.js";
 import { mediaRoutes } from "./lib/modules/media/media.routes.js";
-
 import { postsRoutes } from "./lib/modules/posts/posts.routes.js";
-
+import { socialRoutes } from "./lib/modules/social/social.routes.js";
 
 export function createApp(): Express {
   const app = express();
@@ -32,6 +32,8 @@ export function createApp(): Express {
   app.use("/api", authRoutes);
   app.use("/api/media", mediaRoutes);
   app.use("/api/posts", postsRoutes);
-  app.use("/api/media", mediaRoutes);
+  app.use("/api/posts", engagementRoutes);
+  app.use("/api/social", socialRoutes);
+
   return app;
 }
