@@ -1,5 +1,6 @@
 import { postsRepository } from "./posts.repository.js";
 import type { CreatePostInput } from "./posts.schemas.js";
+import { recommenderService } from "../recommender/recommender.service.js";
 
 export class PostsServiceError extends Error {
   constructor(
@@ -28,6 +29,11 @@ export const postsService = {
 
     const created = await postsRepository.create(userId, input, rootId);
     if (!created) throw new PostsServiceError("failed to create post", 500);
+
+    if (input.type !== "repost") {
+      recommenderService.schedulePostEmbedding(created.id);
+    }
+
     return created;
   },
 

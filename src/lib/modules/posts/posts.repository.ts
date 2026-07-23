@@ -1,6 +1,7 @@
-import { and, asc, desc, eq, isNull } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, isNull } from "drizzle-orm";
 import { db } from "../../../db/index.js";
 import { post, postMedia } from "../../../db/schema/index.js";
+import { postFeedWith } from "./posts.includes.js";
 import type { CreatePostInput } from "./posts.schemas.js";
 
 export const postsRepository = {
@@ -8,19 +9,9 @@ export const postsRepository = {
     return db.query.post.findFirst({
       where: and(eq(post.id, id), isNull(post.deletedAt)),
       with: {
-        author: {
-          columns: { id: true, name: true, image: true },
-        },
+        ...postFeedWith,
         media: {
           orderBy: (m, { asc }) => [asc(m.sortOrder)],
-        },
-        quotedPost: {
-          with: {
-            author: {
-              columns: { id: true, name: true, image: true },
-            },
-            media: true,
-          },
         },
       },
     });
@@ -59,20 +50,7 @@ export const postsRepository = {
   async listFeed(limit: number, cursor?: string) {
     const rows = await db.query.post.findMany({
       where: and(isNull(post.deletedAt), isNull(post.replyToId)),
-      with: {
-        author: {
-          columns: { id: true, name: true, image: true },
-        },
-        media: true,
-        quotedPost: {
-          with: {
-            author: {
-              columns: { id: true, name: true, image: true },
-            },
-            media: true,
-          },
-        },
-      },
+      with: postFeedWith,
       orderBy: [desc(post.createdAt), desc(post.id)],
       limit: limit + 1,
       ...(cursor
@@ -107,6 +85,22 @@ export const postsRepository = {
       orderBy: [asc(post.createdAt), asc(post.id)],
       limit: limit + 1,
     });
+  },
+
+  async findManyByIds(ids: string[]) {
+    if (ids.length === 0) return [];
+
+    const rows = await db.query.post.findMany({
+      where: and(inArray(post.id, ids), isNull(post.deletedAt)),
+      with: postFeedWith,
+    });
+    //This is a map/dictionary of the posts by id.
+    //So you can do byId.get("abc") and instantly get that post.
+    const byId = new Map(rows.map((row) => [row.id, row]));
+    // so we return the posts that are in the ids array in order in which we got them.
+    return ids
+      .map((id) => byId.get(id))
+      .filter((row): row is NonNullable<typeof row> => row !== undefined);
   },
 
   softDelete(id: string, userId: string) {
