@@ -20,7 +20,7 @@ export const postsRepository = {
   async create(userId: string, input: CreatePostInput, rootId: string | null) {
     const postId = crypto.randomUUID();
 
-    return db.transaction(async (tx) => {
+    await db.transaction(async (tx) => {
       await tx.insert(post).values({
         id: postId,
         userId,
@@ -42,9 +42,9 @@ export const postsRepository = {
           })),
         );
       }
-
-      return postsRepository.findById(postId);
     });
+
+    return postsRepository.findById(postId);
   },
 
   async listFeed(limit: number, cursor?: string) {
