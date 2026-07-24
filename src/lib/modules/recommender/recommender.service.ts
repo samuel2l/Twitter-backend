@@ -2,6 +2,7 @@ import { spawn } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { env } from "../../../config/env.js";
+import { recommenderRepository } from "./recommender.repository.js";
 
 const moduleDir = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(moduleDir, "../../../..");
@@ -20,6 +21,14 @@ function runPythonScript(scriptName: string, args: string[]) {
 }
 
 export const recommenderService = {
+  hasUserEmbedding(userId: string) {
+    return recommenderRepository.hasUserEmbedding(userId);
+  },
+
+  listForYouPostIds(userId: string, limit: number, cursor?: string) {
+    return recommenderRepository.listForYouPostIds(userId, limit, cursor);
+  },
+
   schedulePostEmbedding(postId: string) {
     runPythonScript("embed_post.py", [postId]);
   },

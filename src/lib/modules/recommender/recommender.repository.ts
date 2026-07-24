@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { db, pool } from "../../../db/index.js";
 import { userEmbedding } from "../../../db/schema/index.js";
-import { decodeForYouCursor } from "../timeline/timeline.cursor.js";
+import { decodeForYouCursor } from "./recommender.cursor.js";
 
 export const recommenderRepository = {
   async hasUserEmbedding(userId: string) {
