@@ -13,10 +13,16 @@ from pgvector.psycopg import register_vector
 EMBEDDING_DIM = 384
 
 
-def average_embeddings(embeddings: list[list[float]]) -> list[float]:
+def to_float_list(embedding) -> list[float]:
+    if hasattr(embedding, "to_list"):
+        return embedding.to_list()
+    return np.asarray(embedding, dtype=np.float32).tolist()
+
+
+def average_embeddings(embeddings: list) -> list[float]:
     if not embeddings:
         return []
-    matrix = np.array(embeddings, dtype=np.float32)
+    matrix = np.array([to_float_list(embedding) for embedding in embeddings], dtype=np.float32)
     mean = matrix.mean(axis=0)
     norm = np.linalg.norm(mean)
     if norm == 0:

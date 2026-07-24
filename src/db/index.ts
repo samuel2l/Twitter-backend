@@ -9,7 +9,7 @@ export const pool = new Pool({
 });
 
 pool.on("connect", async (client) => {
-  await pgvector.registerType(client);
+  await pgvector.registerTypes(client);
 });
 
 export const db = drizzle(pool, { schema });

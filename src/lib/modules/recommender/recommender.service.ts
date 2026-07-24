@@ -13,9 +13,26 @@ function runPythonScript(scriptName: string, args: string[]) {
   const scriptPath = path.join(projectRoot, "ml", scriptName);
   const child = spawn(env.mlPythonBin, [scriptPath, ...args], {
     detached: true,
-    stdio: "ignore",
-    env: process.env,
+    stdio: env.nodeEnv === "development" ? ["ignore", "pipe", "pipe"] : "ignore",
+    env: {
+      ...process.env,
+      DATABASE_URL: env.databaseUrl,
+    },
   });
+
+  if (env.nodeEnv === "development") {
+    child.stderr?.on("data", (chunk: Buffer) => {
+      console.error(`[ml:${scriptName}]`, chunk.toString().trim());
+    });
+    child.on("error", (error) => {
+      console.error(`[ml:${scriptName}] failed to start:`, error.message);
+    });
+    child.on("close", (code) => {
+      if (code !== 0) {
+        console.error(`[ml:${scriptName}] exited with code ${code}`);
+      }
+    });
+  }
 
   child.unref();
 }
