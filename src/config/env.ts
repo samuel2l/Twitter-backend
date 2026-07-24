@@ -21,4 +21,6 @@ export const env = {
   cloudinaryApiKey: required("CLOUDINARY_API_KEY"),
   cloudinaryApiSecret: required("CLOUDINARY_API_SECRET"),
   cloudinaryFolder: process.env.CLOUDINARY_FOLDER ?? "twitter",
+  mlEmbedEnabled: process.env.ML_EMBED_ENABLED === "true",
+  mlPythonBin: process.env.ML_PYTHON_BIN ?? "python3",
 };

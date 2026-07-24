@@ -2,6 +2,7 @@ import {
   engagementRepository,
   type InteractionType,
 } from "./engagement.repository.js";
+import { recommenderService } from "../recommender/recommender.service.js";
 
 export class EngagementServiceError extends Error {
   constructor(
@@ -36,6 +37,11 @@ export const engagementService = {
       postId,
       type,
     );
+
+    if (type === "like" || type === "bookmark") {
+      recommenderService.scheduleUserEmbedding(userId);
+    }
+
     return created;
   },
 
@@ -51,6 +57,10 @@ export const engagementService = {
     );
     if (deleted.length === 0) {
       throw new EngagementServiceError(`${type} not found`, 404);
+    }
+
+    if (type === "like" || type === "bookmark") {
+      recommenderService.scheduleUserEmbedding(userId);
     }
   },
 

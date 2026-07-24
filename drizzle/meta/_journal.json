@@ -15,6 +15,13 @@
       "when": 1784403507493,
       "tag": "0001_orange_odin",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1784500000000,
+      "tag": "0002_recommender_embeddings",
+      "breakpoints": true
     }
   ]
 }

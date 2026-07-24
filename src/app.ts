@@ -8,6 +8,7 @@ import { engagementRoutes } from "./lib/modules/engagement/engagement.routes.js"
 import { mediaRoutes } from "./lib/modules/media/media.routes.js";
 import { postsRoutes } from "./lib/modules/posts/posts.routes.js";
 import { socialRoutes } from "./lib/modules/social/social.routes.js";
+import { timelineRoutes } from "./lib/modules/timeline/timeline.routes.js";
 
 export function createApp(): Express {
   const app = express();
@@ -34,6 +35,7 @@ export function createApp(): Express {
   app.use("/api/posts", postsRoutes);
   app.use("/api/posts", engagementRoutes);
   app.use("/api/social", socialRoutes);
+  app.use("/api/timeline", timelineRoutes);
 
   return app;
 }
