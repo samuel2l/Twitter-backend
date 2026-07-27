@@ -60,25 +60,30 @@ timelineRoutes.get("/for-you", async (req: Request, res: Response) => {
   }
 });
 
-timelineRoutes.get("/for-you/new-count", async (req: Request, res: Response) => {
-  try {
-    const sessionId =
-      typeof req.query.sessionId === "string" ? req.query.sessionId : undefined;
+timelineRoutes.get(
+  "/for-you/new-count",
+  async (req: Request, res: Response) => {
+    try {
+      const sessionId =
+        typeof req.query.sessionId === "string"
+          ? req.query.sessionId
+          : undefined;
 
-    if (!sessionId) {
-      res.status(400).json({ error: "sessionId required" });
-      return;
+      if (!sessionId) {
+        res.status(400).json({ error: "sessionId required" });
+        return;
+      }
+
+      const { session } = req as AuthenticatedRequest;
+      res.json(
+        await timelineService.getForYouNewCount(session.user.id, sessionId),
+      );
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Internal server error" });
     }
-
-    const { session } = req as AuthenticatedRequest;
-    res.json(
-      await timelineService.getForYouNewCount(session.user.id, sessionId),
-    );
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
+  },
+);
 
 timelineRoutes.post("/for-you/refresh", async (req: Request, res: Response) => {
   try {
@@ -99,7 +104,10 @@ timelineRoutes.post("/impressions", async (req: Request, res: Response) => {
     }
 
     const { session } = req as AuthenticatedRequest;
-    await timelineService.recordImpressions(session.user.id, parsed.data.postIds);
+    await timelineService.recordImpressions(
+      session.user.id,
+      parsed.data.postIds,
+    );
     res.status(204).send();
   } catch (error) {
     console.error(error);

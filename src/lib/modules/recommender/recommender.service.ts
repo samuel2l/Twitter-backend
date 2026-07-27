@@ -14,7 +14,8 @@ function runPythonScript(scriptName: string, args: string[]) {
   const scriptPath = path.join(projectRoot, "ml", scriptName);
   const child = spawn(env.mlPythonBin, [scriptPath, ...args], {
     detached: true,
-    stdio: env.nodeEnv === "development" ? ["ignore", "pipe", "pipe"] : "ignore",
+    stdio:
+      env.nodeEnv === "development" ? ["ignore", "pipe", "pipe"] : "ignore",
     env: {
       ...process.env,
       DATABASE_URL: env.databaseUrl,

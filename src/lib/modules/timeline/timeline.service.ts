@@ -107,7 +107,11 @@ export const timelineService = {
       tier = upcoming;
       offset = 0;
       candidates = await buildTierCandidates(tier, userId, session.id);
-      ({ items: pageIds, nextOffset } = paginateOffset(candidates, offset, limit));
+      ({ items: pageIds, nextOffset } = paginateOffset(
+        candidates,
+        offset,
+        limit,
+      ));
     }
 
     if (pageIds.length === 0 && !cursor) {
@@ -154,7 +158,11 @@ export const timelineService = {
   },
 
   async refreshForYou(userId: string) {
-    const session = await feedService.resolveForYouSession(userId, undefined, true);
+    const session = await feedService.resolveForYouSession(
+      userId,
+      undefined,
+      true,
+    );
     return this.getForYouFeed(userId, 20, undefined, session.id, false);
   },
 
