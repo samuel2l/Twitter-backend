@@ -6,9 +6,11 @@ import { auth } from "./lib/modules/auth/auth.js";
 import { authRoutes } from "./lib/modules/auth/auth.routes.js";
 import { engagementRoutes } from "./lib/modules/engagement/engagement.routes.js";
 import { mediaRoutes } from "./lib/modules/media/media.routes.js";
+import { onboardingRoutes } from "./lib/modules/onboarding/onboarding.routes.js";
 import { postsRoutes } from "./lib/modules/posts/posts.routes.js";
 import { socialRoutes } from "./lib/modules/social/social.routes.js";
 import { timelineRoutes } from "./lib/modules/timeline/timeline.routes.js";
+import { topicsRoutes } from "./lib/modules/topics/topics.routes.js";
 
 export function createApp(): Express {
   const app = express();
@@ -35,6 +37,8 @@ export function createApp(): Express {
   app.use("/api/posts", postsRoutes);
   app.use("/api/posts", engagementRoutes);
   app.use("/api/social", socialRoutes);
+  app.use("/api/topics", topicsRoutes);
+  app.use("/api/onboarding", onboardingRoutes);
   app.use("/api/timeline", timelineRoutes);
 
   return app;
