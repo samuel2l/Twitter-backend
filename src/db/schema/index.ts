@@ -18,7 +18,5 @@ export * from "./embeddings.js";
 export * from "./posts.js";
 export * from "./social.js";
 export * from "./engagement.js";
-export * from "./recommender.js";
-export * from "./topics.js";
-export * from "./interests.js";
+export * from "./recommendation-vectors.js";
 export * from "./feed.js";
