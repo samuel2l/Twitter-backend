@@ -15,6 +15,7 @@ export const interactionTypeEnum = pgEnum("interaction_type", [
   "bookmark",
   "share",
   "view",
+  "not_interested",
 ]);
 
 export const interaction = pgTable(
