@@ -51,7 +51,7 @@ def main() -> int:
                 INNER JOIN post_embedding pe ON pe.post_id = i.post_id
                 INNER JOIN post p ON p.id = i.post_id
                 WHERE i.user_id = %s
-                  AND i.type IN ('like', 'bookmark')
+                  AND i.type IN ('like', 'bookmark', 'share')
                   AND p.deleted_at IS NULL
                 """,
                 (user_id,),
