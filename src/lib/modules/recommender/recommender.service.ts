@@ -2,6 +2,7 @@ import { spawn } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { env } from "../../../config/env.js";
+import { interestRepository } from "./interest.repository.js";
 import { recommenderRepository } from "./recommender.repository.js";
 
 const moduleDir = path.dirname(fileURLToPath(import.meta.url));
@@ -42,6 +43,10 @@ export const recommenderService = {
     return recommenderRepository.hasUserEmbedding(userId);
   },
 
+  hasInterests(userId: string) {
+    return interestRepository.hasInterests(userId);
+  },
+
   listForYouPostIds(userId: string, limit: number, cursor?: string) {
     return recommenderRepository.listForYouPostIds(userId, limit, cursor);
   },
@@ -52,5 +57,13 @@ export const recommenderService = {
 
   scheduleUserEmbedding(userId: string) {
     runPythonScript("embed_users.py", [userId]);
+  },
+
+  scheduleInterestUpdate(
+    userId: string,
+    postId: string,
+    action: "like" | "bookmark" | "share" | "not_interested",
+  ) {
+    runPythonScript("interest_updater.py", [userId, postId, action]);
   },
 };

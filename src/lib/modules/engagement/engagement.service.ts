@@ -27,8 +27,7 @@ export const engagementService = {
       type,
     );
     if (existing) {
-      // idempotent for views; conflict for others
-      if (type === "view") return existing;
+      if (type === "view" || type === "not_interested") return existing;
       throw new EngagementServiceError(`already ${type}d`, 409);
     }
 
@@ -38,6 +37,15 @@ export const engagementService = {
       type,
     );
 
+    if (
+      type === "like" ||
+      type === "bookmark" ||
+      type === "share" ||
+      type === "not_interested"
+    ) {
+      recommenderService.scheduleInterestUpdate(userId, postId, type);
+    }
+
     if (type === "like" || type === "bookmark") {
       recommenderService.scheduleUserEmbedding(userId);
     }
@@ -46,8 +54,8 @@ export const engagementService = {
   },
 
   async remove(userId: string, postId: string, type: InteractionType) {
-    if (type === "view") {
-      throw new EngagementServiceError("cannot remove views", 400);
+    if (type === "view" || type === "not_interested") {
+      throw new EngagementServiceError(`cannot remove ${type}s`, 400);
     }
 
     const deleted = await engagementRepository.deleteInteraction(
@@ -76,6 +84,7 @@ export const engagementService = {
       bookmarked: rows.some((r) => r.type === "bookmark"),
       shared: rows.some((r) => r.type === "share"),
       viewed: rows.some((r) => r.type === "view"),
+      notInterested: rows.some((r) => r.type === "not_interested"),
     };
   },
 

@@ -2,7 +2,12 @@ import { and, eq, isNull, sql } from "drizzle-orm";
 import { db } from "../../../db/index.js";
 import { interaction, post } from "../../../db/schema/index.js";
 
-export type InteractionType = "like" | "bookmark" | "share" | "view";
+export type InteractionType =
+  | "like"
+  | "bookmark"
+  | "share"
+  | "view"
+  | "not_interested";
 
 export const engagementRepository = {
   findPostById(postId: string) {

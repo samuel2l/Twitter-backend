@@ -88,6 +88,12 @@ engagementRoutes.delete(
 
 engagementRoutes.post("/:postId/view", requireAuth, createAddHandler("view"));
 
+engagementRoutes.post(
+  "/:postId/not-interested",
+  requireAuth,
+  createAddHandler("not_interested"),
+);
+
 engagementRoutes.get(
   "/:postId/interactions/me",
   requireAuth,
