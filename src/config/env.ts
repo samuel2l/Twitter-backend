@@ -23,4 +23,6 @@ export const env = {
   cloudinaryFolder: process.env.CLOUDINARY_FOLDER ?? "twitter",
   mlEmbedEnabled: process.env.ML_EMBED_ENABLED === "true",
   mlPythonBin: process.env.ML_PYTHON_BIN ?? "python3",
+  redisUrl: process.env.REDIS_URL ?? "redis://localhost:6379",
+  redisEnabled: process.env.REDIS_ENABLED !== "false",
 };
