@@ -1,6 +1,7 @@
 import { and, asc, desc, eq, inArray, isNull } from "drizzle-orm";
 import { db } from "../../../db/index.js";
 import { post, postMedia } from "../../../db/schema/index.js";
+import { postsCache, type CachedPost } from "./posts.cache.js";
 import { postFeedWith } from "./posts.includes.js";
 import type { CreatePostInput } from "./posts.schemas.js";
 
@@ -90,24 +91,38 @@ export const postsRepository = {
   async findManyByIds(ids: string[]) {
     if (ids.length === 0) return [];
 
-    const rows = await db.query.post.findMany({
-      where: and(inArray(post.id, ids), isNull(post.deletedAt)),
-      with: postFeedWith,
-    });
-    //This is a map/dictionary of the posts by id.
-    //So you can do byId.get("abc") and instantly get that post.
-    const byId = new Map(rows.map((row) => [row.id, row]));
-    // so we return the posts that are in the ids array in order in which we got them.
+    const cachedById = await postsCache.getMany(ids);
+    const missingIds = ids.filter((id) => !cachedById.has(id));
+
+    if (missingIds.length > 0) {
+      const rows = await db.query.post.findMany({
+        where: and(inArray(post.id, missingIds), isNull(post.deletedAt)),
+        with: postFeedWith,
+      });
+
+      await postsCache.setMany(rows as CachedPost[]);
+
+      for (const row of rows) {
+        cachedById.set(row.id, row as CachedPost);
+      }
+    }
+
     return ids
-      .map((id) => byId.get(id))
+      .map((id) => cachedById.get(id))
       .filter((row): row is NonNullable<typeof row> => row !== undefined);
   },
 
-  softDelete(id: string, userId: string) {
-    return db
+  async softDelete(id: string, userId: string) {
+    const deleted = await db
       .update(post)
       .set({ deletedAt: new Date() })
       .where(and(eq(post.id, id), eq(post.userId, userId), isNull(post.deletedAt)))
       .returning({ id: post.id });
+
+    if (deleted.length > 0) {
+      await postsCache.invalidate(id);
+    }
+
+    return deleted;
   },
 };
