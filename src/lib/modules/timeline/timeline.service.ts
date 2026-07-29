@@ -1,7 +1,5 @@
 import { postsRepository } from "../posts/posts.repository.js";
 import { feedService } from "../feed/feed.service.js";
-import { retrievalRepository } from "../feed/feed.repository.js";
-import { buildForYouPersonalizedCandidates } from "../feed/for-you.candidates.js";
 import {
   decodeForYouCursor,
   encodeForYouCursor,
@@ -10,10 +8,6 @@ import {
 } from "../recommender/for-you.cursor.js";
 import { encodeTimelineCursor } from "./timeline.cursor.js";
 import { timelineRepository } from "./timeline.repository.js";
-
-const CANDIDATE_LIMIT = 200;
-
-type ScoredCandidate = { id: string; score: number };
 
 function paginateOffset<T>(rows: T[], offset: number, limit: number) {
   const page = rows.slice(offset, offset + limit + 1);
@@ -24,26 +18,6 @@ function paginateOffset<T>(rows: T[], offset: number, limit: number) {
     items,
     nextOffset: hasMore ? offset + limit : undefined,
   };
-}
-
-async function buildTierCandidates(
-  tier: ForYouTier,
-  userId: string,
-  sessionId: string,
-): Promise<ScoredCandidate[]> {
-  if (tier === "personalized") {
-    return buildForYouPersonalizedCandidates(userId, sessionId);
-  }
-
-  if (tier === "exploration") {
-    return retrievalRepository.listExploration(
-      userId,
-      sessionId,
-      CANDIDATE_LIMIT,
-    );
-  }
-
-  return retrievalRepository.listSeen(userId, CANDIDATE_LIMIT);
 }
 
 function paginateTimelineRows<T extends { id: string; createdAt: Date }>(
@@ -93,7 +67,11 @@ export const timelineService = {
     let tier: ForYouTier = decoded?.tier ?? "personalized";
     let offset = decoded?.offset ?? 0;
 
-    let candidates = await buildTierCandidates(tier, userId, session.id);
+    let candidates = await feedService.getTierCandidates(
+      tier,
+      userId,
+      session.id,
+    );
     let { items: pageIds, nextOffset } = paginateOffset(
       candidates,
       offset,
@@ -106,7 +84,11 @@ export const timelineService = {
 
       tier = upcoming;
       offset = 0;
-      candidates = await buildTierCandidates(tier, userId, session.id);
+      candidates = await feedService.getTierCandidates(
+        tier,
+        userId,
+        session.id,
+      );
       ({ items: pageIds, nextOffset } = paginateOffset(
         candidates,
         offset,
