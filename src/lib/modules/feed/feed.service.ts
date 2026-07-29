@@ -80,7 +80,7 @@ export const feedService = {
     let servedPostIds = await feedCache.getServedPostIds(sessionId);
     if (!servedPostIds) {
       servedPostIds = await feedRepository.listServedPostIds(sessionId);
-      await feedCache.hydrateServedPosts(sessionId, servedPostIds);
+      await feedCache.addServedPosts(sessionId, servedPostIds);
     }
 
     return feedCache.countUnserved(sessionId, candidates, servedPostIds);

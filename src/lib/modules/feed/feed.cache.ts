@@ -75,16 +75,6 @@ export const feedCache = {
     });
   },
 
-  hydrateServedPosts(sessionId: string, postIds: string[]) {
-    if (postIds.length === 0) return Promise.resolve(null);
-
-    return run(async (redis) => {
-      const key = servedKey(sessionId);
-      await redis.sadd(key, ...postIds);
-      await redis.expire(key, SESSION_TTL_SECONDS);
-    });
-  },
-
   async countUnserved(
     sessionId: string,
     candidates: ScoredCandidate[],
