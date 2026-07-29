@@ -202,6 +202,16 @@ export const feedRepository = {
         })),
       )
       .onConflictDoNothing();
+
+    return postIds;
+  },
+
+  listServedPostIds(sessionId: string) {
+    return db
+      .select({ postId: feedServedPost.postId })
+      .from(feedServedPost)
+      .where(eq(feedServedPost.sessionId, sessionId))
+      .then((rows) => rows.map((row) => row.postId));
   },
 
   async recordImpressions(userId: string, postIds: string[]) {
