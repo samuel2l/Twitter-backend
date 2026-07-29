@@ -1,4 +1,5 @@
 import type { ForYouTier } from "../recommender/for-you.cursor.js";
+import { env } from "../../../config/env.js";
 import { forYouRecommendationsCache } from "./for-you-recommendations.cache.js";
 import {
   forYouRecommendationsRepository,
@@ -53,10 +54,24 @@ export const forYouRecommendationsService = {
     sessionId: string,
   ): Promise<ScoredCandidate[]> {
     const cached = await forYouRecommendationsCache.getTierCandidates(sessionId, tier);
-    if (cached) return cached;
+    if (cached) {
+      if (env.nodeEnv === "development") {
+        console.log(
+          `[cache:for-you] HIT session=${sessionId} tier=${tier} candidates=${cached.length}`,
+        );
+      }
+      return cached;
+    }
 
     const candidates = await buildTierCandidatesFromDb(tier, userId, sessionId);
     await forYouRecommendationsCache.setTierCandidates(sessionId, tier, candidates);
+
+    if (env.nodeEnv === "development") {
+      console.log(
+        `[cache:for-you] MISS session=${sessionId} tier=${tier} → built ${candidates.length} candidates from DB`,
+      );
+    }
+
     return candidates;
   },
 

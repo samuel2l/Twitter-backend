@@ -41,3 +41,17 @@ export async function closeRedis(): Promise<void> {
   client = null;
   connectFailed = false;
 }
+
+export async function pingRedis(): Promise<"ok" | "disabled" | "unavailable"> {
+  if (!env.redisEnabled) return "disabled";
+
+  const redis = getRedisClient();
+  if (!redis) return "unavailable";
+
+  try {
+    const pong = await redis.ping();
+    return pong === "PONG" ? "ok" : "unavailable";
+  } catch {
+    return "unavailable";
+  }
+}

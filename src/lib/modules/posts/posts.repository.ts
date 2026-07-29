@@ -1,4 +1,5 @@
 import { and, asc, desc, eq, inArray, isNull } from "drizzle-orm";
+import { env } from "../../../config/env.js";
 import { db } from "../../../db/index.js";
 import { post, postMedia } from "../../../db/schema/index.js";
 import { postsCache, type CachedPost } from "./posts.cache.js";
@@ -93,6 +94,12 @@ export const postsRepository = {
 
     const cachedById = await postsCache.getMany(ids);
     const missingIds = ids.filter((id) => !cachedById.has(id));
+
+    if (env.nodeEnv === "development") {
+      console.log(
+        `[cache:posts] ${ids.length - missingIds.length}/${ids.length} hits, ${missingIds.length} miss`,
+      );
+    }
 
     if (missingIds.length > 0) {
       const rows = await db.query.post.findMany({
