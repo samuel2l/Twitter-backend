@@ -6,7 +6,7 @@ import {
 import {
   forYouQuerySchema,
   recordImpressionsSchema,
-} from "../feed/feed.schemas.js";
+} from "../for-you-recommendations/for-you-recommendations.schemas.js";
 import { feedQuerySchema } from "../posts/posts.schemas.js";
 import { timelineService } from "./timeline.service.js";
 

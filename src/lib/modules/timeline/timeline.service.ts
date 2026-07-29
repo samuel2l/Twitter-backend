@@ -1,5 +1,5 @@
 import { postsRepository } from "../posts/posts.repository.js";
-import { feedService } from "../feed/feed.service.js";
+import { forYouRecommendationsService } from "../for-you-recommendations/for-you-recommendations.service.js";
 import {
   decodeForYouCursor,
   encodeForYouCursor,
@@ -57,7 +57,7 @@ export const timelineService = {
     sessionId?: string,
     refresh?: boolean,
   ) {
-    const session = await feedService.resolveForYouSession(
+    const session = await forYouRecommendationsService.resolveForYouSession(
       userId,
       sessionId,
       refresh,
@@ -67,7 +67,7 @@ export const timelineService = {
     let tier: ForYouTier = decoded?.tier ?? "personalized";
     let offset = decoded?.offset ?? 0;
 
-    let candidates = await feedService.getTierCandidates(
+    let candidates = await forYouRecommendationsService.getTierCandidates(
       tier,
       userId,
       session.id,
@@ -84,7 +84,7 @@ export const timelineService = {
 
       tier = upcoming;
       offset = 0;
-      candidates = await feedService.getTierCandidates(
+      candidates = await forYouRecommendationsService.getTierCandidates(
         tier,
         userId,
         session.id,
@@ -112,7 +112,7 @@ export const timelineService = {
     }
 
     const postIds = pageIds.map((row) => row.id);
-    await feedService.recordServed(session.id, postIds);
+    await forYouRecommendationsService.recordServed(session.id, postIds);
 
     let nextCursor: string | undefined;
     if (nextOffset !== undefined) {
@@ -134,13 +134,13 @@ export const timelineService = {
   },
 
   async getForYouNewCount(userId: string, sessionId: string) {
-    const session = await feedService.resolveForYouSession(userId, sessionId);
-    const count = await feedService.countRefreshableForYou(userId, session.id);
+    const session = await forYouRecommendationsService.resolveForYouSession(userId, sessionId);
+    const count = await forYouRecommendationsService.countRefreshableForYou(userId, session.id);
     return { count, sessionId: session.id };
   },
 
   async refreshForYou(userId: string) {
-    const session = await feedService.resolveForYouSession(
+    const session = await forYouRecommendationsService.resolveForYouSession(
       userId,
       undefined,
       true,
@@ -149,6 +149,6 @@ export const timelineService = {
   },
 
   recordImpressions(userId: string, postIds: string[]) {
-    return feedService.recordImpressions(userId, postIds);
+    return forYouRecommendationsService.recordImpressions(userId, postIds);
   },
 };

@@ -1,10 +1,13 @@
 import type { ForYouTier } from "../recommender/for-you.cursor.js";
-import { feedCache } from "./feed.cache.js";
+import { forYouRecommendationsCache } from "./for-you-recommendations.cache.js";
+import {
+  forYouRecommendationsRepository,
+  forYouRetrievalRepository,
+} from "./for-you-recommendations.repository.js";
 import {
   buildForYouPersonalizedCandidates,
   type ScoredCandidate,
 } from "./for-you.candidates.js";
-import { feedRepository, retrievalRepository } from "./feed.repository.js";
 
 const CANDIDATE_LIMIT = 200;
 
@@ -18,28 +21,28 @@ async function buildTierCandidatesFromDb(
   }
 
   if (tier === "exploration") {
-    return retrievalRepository.listExploration(
+    return forYouRetrievalRepository.listExploration(
       userId,
       sessionId,
       CANDIDATE_LIMIT,
     );
   }
 
-  return retrievalRepository.listSeen(userId, CANDIDATE_LIMIT);
+  return forYouRetrievalRepository.listSeen(userId, CANDIDATE_LIMIT);
 }
 
-export const feedService = {
+export const forYouRecommendationsService = {
   async resolveForYouSession(userId: string, sessionId?: string, refresh?: boolean) {
     if (refresh || !sessionId) {
-      const [session] = await feedRepository.createSession(userId);
+      const [session] = await forYouRecommendationsRepository.createSession(userId);
       if (!session) throw new Error("failed to create feed session");
       return session;
     }
 
-    const existing = await feedRepository.findSession(sessionId, userId);
+    const existing = await forYouRecommendationsRepository.findSession(sessionId, userId);
     if (existing) return existing;
 
-    const [session] = await feedRepository.createSession(userId);
+    const [session] = await forYouRecommendationsRepository.createSession(userId);
     if (!session) throw new Error("failed to create feed session");
     return session;
   },
@@ -49,21 +52,21 @@ export const feedService = {
     userId: string,
     sessionId: string,
   ): Promise<ScoredCandidate[]> {
-    const cached = await feedCache.getTierCandidates(sessionId, tier);
+    const cached = await forYouRecommendationsCache.getTierCandidates(sessionId, tier);
     if (cached) return cached;
 
     const candidates = await buildTierCandidatesFromDb(tier, userId, sessionId);
-    await feedCache.setTierCandidates(sessionId, tier, candidates);
+    await forYouRecommendationsCache.setTierCandidates(sessionId, tier, candidates);
     return candidates;
   },
 
   async recordImpressions(userId: string, postIds: string[]) {
-    return feedRepository.recordImpressions(userId, postIds);
+    return forYouRecommendationsRepository.recordImpressions(userId, postIds);
   },
 
   async recordServed(sessionId: string, postIds: string[]) {
-    await feedRepository.recordServed(sessionId, postIds);
-    await feedCache.addServedPosts(sessionId, postIds);
+    await forYouRecommendationsRepository.recordServed(sessionId, postIds);
+    await forYouRecommendationsCache.addServedPosts(sessionId, postIds);
   },
 
   /**
@@ -77,12 +80,12 @@ export const feedService = {
       sessionId,
     );
 
-    let servedPostIds = await feedCache.getServedPostIds(sessionId);
+    let servedPostIds = await forYouRecommendationsCache.getServedPostIds(sessionId);
     if (!servedPostIds) {
-      servedPostIds = await feedRepository.listServedPostIds(sessionId);
-      await feedCache.addServedPosts(sessionId, servedPostIds);
+      servedPostIds = await forYouRecommendationsRepository.listServedPostIds(sessionId);
+      await forYouRecommendationsCache.addServedPosts(sessionId, servedPostIds);
     }
 
-    return feedCache.countUnserved(sessionId, candidates, servedPostIds);
+    return forYouRecommendationsCache.countUnserved(sessionId, candidates, servedPostIds);
   },
 };

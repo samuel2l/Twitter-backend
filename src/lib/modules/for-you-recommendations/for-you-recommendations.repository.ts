@@ -36,7 +36,7 @@ function exclusionSql(userIdParam: string, sessionIdParam: string) {
   `;
 }
 
-export const retrievalRepository = {
+export const forYouRetrievalRepository = {
   async listPersonalizedForInterest(
     userId: string,
     sessionId: string,
@@ -44,7 +44,6 @@ export const retrievalRepository = {
     source: "onboarding" | "inferred",
     limit: number,
   ) {
-    // Given one of x’s interests (e.g. tech from onboarding), which posts are most similar to that interest vector?
     const result = await pool.query<{ id: string; distance: number }>(
       `
         SELECT
@@ -167,7 +166,7 @@ export const retrievalRepository = {
   },
 };
 
-export const feedRepository = {
+export const forYouRecommendationsRepository = {
   createSession(userId: string) {
     const id = crypto.randomUUID();
     return db

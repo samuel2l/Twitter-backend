@@ -4,15 +4,6 @@ import type { ScoredCandidate } from "./for-you.candidates.js";
 
 const SESSION_TTL_SECONDS = 24 * 60 * 60;
 
-
-//redis layer for feed cache
-// Without Redis, every time a user scrolls the feed, the app re-runs vector queries against Postgres to rebuild up to 200 candidate posts. With this file, you:
-
-// Build candidates once per session + tier → store in Redis
-// Paginate from memory on later pages (slice the cached list)
-// Track served posts in Redis for fast blue-dot counts
-
-//helpers to consistently name keys for storage
 function tierKey(sessionId: string, tier: ForYouTier) {
   return `feed:session:${sessionId}:tier:${tier}`;
 }
@@ -30,12 +21,12 @@ async function run<T>(
   try {
     return await operation(redis);
   } catch (error) {
-    console.error("[feed.cache]", error);
+    console.error("[for-you-recommendations.cache]", error);
     return null;
   }
 }
 
-export const feedCache = {
+export const forYouRecommendationsCache = {
   getTierCandidates(sessionId: string, tier: ForYouTier) {
     return run(async (redis) => {
       const raw = await redis.get(tierKey(sessionId, tier));
