@@ -65,4 +65,12 @@ export const socialRepository = {
       limit: limit + 1,
     });
   },
+
+  listFollowerIds(followingId: string) {
+    return db
+      .select({ followerId: follow.followerId })
+      .from(follow)
+      .where(eq(follow.followingId, followingId))
+      .then((rows) => rows.map((row) => row.followerId));
+  },
 };

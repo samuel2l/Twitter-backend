@@ -1,4 +1,5 @@
 import { socialRepository } from "./social.repository.js";
+import { followingTimelineService } from "../timeline/following-timeline.service.js";
 
 export class SocialServiceError extends Error {
   constructor(
@@ -33,6 +34,9 @@ export const socialService = {
       followerId,
       followingId,
     );
+
+    await followingTimelineService.backfillOnFollow(followerId, followingId);
+
     return created;
   },
 

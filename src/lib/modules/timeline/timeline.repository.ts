@@ -39,6 +39,21 @@ export const timelineRepository = {
       .limit(limit + 1);
   },
 
+  async listTopLevelPostIdsByUser(userId: string, limit: number) {
+    return db
+      .select({ id: post.id, createdAt: post.createdAt })
+      .from(post)
+      .where(
+        and(
+          eq(post.userId, userId),
+          isNull(post.deletedAt),
+          isNull(post.replyToId),
+        ),
+      )
+      .orderBy(desc(post.createdAt), desc(post.id))
+      .limit(limit);
+  },
+
   async listRecentPostIds(limit: number, cursor?: string) {
     const conditions = [isNull(post.deletedAt), isNull(post.replyToId)];
 

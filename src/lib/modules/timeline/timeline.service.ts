@@ -7,6 +7,7 @@ import {
   type ForYouTier,
 } from "../recommender/for-you.cursor.js";
 import { encodeTimelineCursor } from "./timeline.cursor.js";
+import { followingTimelineService } from "./following-timeline.service.js";
 import { timelineRepository } from "./timeline.repository.js";
 
 function paginateOffset<T>(rows: T[], offset: number, limit: number) {
@@ -40,7 +41,7 @@ function paginateTimelineRows<T extends { id: string; createdAt: Date }>(
 export const timelineService = {
   async getFollowingFeed(userId: string, limit: number, cursor?: string) {
     const { page, nextCursor } = paginateTimelineRows(
-      await timelineRepository.listFollowingPostIds(userId, limit, cursor),
+      await followingTimelineService.getFollowingPostIds(userId, limit, cursor),
       limit,
     );
 
