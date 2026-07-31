@@ -5,6 +5,8 @@
   "main": "dist/index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",
+    "worker": "tsx watch src/worker/index.ts",
+    "worker:start": "node dist/worker/index.js",
     "build": "tsc",
     "start": "node dist/index.js",
     "db:generate": "drizzle-kit generate",
@@ -24,6 +26,7 @@
     "drizzle-orm": "^0.45.2",
     "express": "^5.2.1",
     "ioredis": "^5.11.1",
+    "kafkajs": "^2.2.4",
     "multer": "^2.2.0",
     "pg": "^8.22.0",
     "pgvector": "^0.3.0",

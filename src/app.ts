@@ -2,6 +2,7 @@ import cors from "cors";
 import express, { type Express, type Request, type Response } from "express";
 import { toNodeHandler } from "better-auth/node";
 import { env } from "./config/env.js";
+import { pingKafka } from "./config/kafka.js";
 import { pingRedis } from "./config/redis.js";
 import { auth } from "./lib/modules/auth/auth.js";
 import { authRoutes } from "./lib/modules/auth/auth.routes.js";
@@ -30,12 +31,15 @@ export function createApp(): Express {
   app.use(express.json());
 
   app.get("/health", async (_req: Request, res: Response) => {
-    const redis = await pingRedis();
-    const status = redis === "ok" || redis === "disabled" ? "ok" : "degraded";
+    const [redis, kafka] = await Promise.all([pingRedis(), pingKafka()]);
+    const redisOk = redis === "ok" || redis === "disabled";
+    const kafkaOk = kafka === "ok" || kafka === "disabled";
+    const status = redisOk && kafkaOk ? "ok" : "degraded";
 
     res.status(status === "ok" ? 200 : 503).json({
       status,
       redis,
+      kafka,
     });
   });
 
