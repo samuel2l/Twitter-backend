@@ -9,6 +9,13 @@ export const postCreatedEventSchema = z.object({
   quotedPostId: z.string().min(1).optional(),
 });
 
+export const postDeletedEventSchema = z.object({
+  postId: z.string().min(1),
+  authorId: z.string().min(1),
+  type: z.enum(["original", "reply", "quote", "repost"]),
+  quotedPostId: z.string().min(1).optional(),
+});
+
 export const engagementRecordedEventSchema = z.object({
   userId: z.string().min(1),
   postId: z.string().min(1),
@@ -17,6 +24,7 @@ export const engagementRecordedEventSchema = z.object({
 });
 
 export type PostCreatedEvent = z.infer<typeof postCreatedEventSchema>;
+export type PostDeletedEvent = z.infer<typeof postDeletedEventSchema>;
 export type EngagementRecordedEvent = z.infer<
   typeof engagementRecordedEventSchema
 >;

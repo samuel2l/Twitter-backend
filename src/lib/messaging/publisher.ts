@@ -6,6 +6,7 @@ import { getKafkaProducer } from "../../config/kafka.js";
 import type {
   EngagementRecordedEvent,
   PostCreatedEvent,
+  PostDeletedEvent,
 } from "./events.js";
 import {
   interestUpdaterAction,
@@ -102,6 +103,26 @@ export const eventPublisher = {
     }
 
     runPythonScriptDetached("embed_post.py", [event.postId]);
+  },
+
+  async publishPostDeleted(event: PostDeletedEvent) {
+    if (env.kafkaEnabled) {
+      const published = await publish(TOPICS.POST_DELETED, event.authorId, event);
+      if (published) {
+        if (env.nodeEnv === "development") {
+          console.log(`[kafka] published ${TOPICS.POST_DELETED} post=${event.postId}`);
+        }
+        return;
+      }
+    }
+
+    if (event.type === "repost" && event.quotedPostId) {
+      runPythonScriptDetached("interest_updater.py", [
+        event.authorId,
+        event.quotedPostId,
+        "unrepost",
+      ]);
+    }
   },
 
   async publishEngagementRecorded(event: EngagementRecordedEvent) {
