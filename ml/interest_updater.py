@@ -20,6 +20,7 @@ ACTION_WEIGHT = {
     "not_interested": 1.0,
     "unlike": 1.0,
     "unbookmark": 0.8,
+    "unrepost": 1.0,
 }
 #Exponential Moving Average (EMA) is a type of moving average that gives more weight to recent data points.
 #used here to weight the recent engagement signals and determine how much to update the interest vector hence changing the user's interests.
@@ -32,6 +33,7 @@ EMA_ALPHA = {
     "not_interested": 0.4,
     "unlike": 0.2,
     "unbookmark": 0.2,
+    "unrepost": 0.4,
 }
 
 
@@ -134,7 +136,7 @@ def main() -> int:
                     0.05,
                     weights[nearest_index] * (1 - alpha),
                 )
-            elif action in ("unlike", "unbookmark"):
+            elif action in ("unlike", "unbookmark", "unrepost"):
                 updated = normalize(
                     (1 - alpha) * current - alpha * post_embedding,
                 )
