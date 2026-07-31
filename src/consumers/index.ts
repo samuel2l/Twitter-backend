@@ -2,24 +2,24 @@ import "dotenv/config";
 import { createKafkaConsumer, disconnectKafka } from "../config/kafka.js";
 import { env } from "../config/env.js";
 import { TOPICS } from "../lib/messaging/topics.js";
-import { handleEngagementRecordedMessage } from "./consumers/engagement-recorded.consumer.js";
-import { handlePostCreatedMessage } from "./consumers/post-created.consumer.js";
-import { handlePostDeletedMessage } from "./consumers/post-deleted.consumer.js";
+import { handleEngagementRecordedMessage } from "./engagement-recorded.consumer.js";
+import { handlePostCreatedMessage } from "./post-created.consumer.js";
+import { handlePostDeletedMessage } from "./post-deleted.consumer.js";
 
-let consumer = createKafkaConsumer("twitter-ml-worker");
+let consumer = createKafkaConsumer("twitter-ml-consumer");
 
 async function start() {
   if (!env.kafkaEnabled) {
-    console.error("[worker] KAFKA_ENABLED is false — nothing to run");
+    console.error("[consumer] KAFKA_ENABLED is false — nothing to run");
     process.exit(1);
   }
 
   if (!consumer) {
-    consumer = createKafkaConsumer("twitter-ml-worker");
+    consumer = createKafkaConsumer("twitter-ml-consumer");
   }
 
   if (!consumer) {
-    console.error("[worker] failed to create Kafka consumer");
+    console.error("[consumer] failed to create Kafka consumer");
     process.exit(1);
   }
 
@@ -34,7 +34,7 @@ async function start() {
   });
 
   console.log(
-    `[worker] listening on ${TOPICS.POST_CREATED}, ${TOPICS.POST_DELETED}, ${TOPICS.ENGAGEMENT_RECORDED}`,
+    `[consumer] listening on ${TOPICS.POST_CREATED}, ${TOPICS.POST_DELETED}, ${TOPICS.ENGAGEMENT_RECORDED}`,
   );
 
   await consumer.run({
@@ -67,7 +67,7 @@ async function shutdown() {
 }
 
 start().catch((error) => {
-  console.error("[worker] failed to start:", error);
+  console.error("[consumer] failed to start:", error);
   process.exit(1);
 });
 

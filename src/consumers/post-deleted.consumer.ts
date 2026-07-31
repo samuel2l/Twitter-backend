@@ -1,8 +1,8 @@
 import type { EachMessagePayload } from "kafkajs";
-import { env } from "../../config/env.js";
-import { postDeletedEventSchema } from "../../lib/messaging/events.js";
-import { TOPICS } from "../../lib/messaging/topics.js";
-import { runPythonScript } from "../../lib/ml/python-runner.js";
+import { env } from "../config/env.js";
+import { postDeletedEventSchema } from "../lib/messaging/events.js";
+import { TOPICS } from "../lib/messaging/topics.js";
+import { runPythonScript } from "../lib/ml/python-runner.js";
 
 export async function handlePostDeletedMessage({
   message,
@@ -14,7 +14,7 @@ export async function handlePostDeletedMessage({
   );
 
   if (env.nodeEnv === "development") {
-    console.log(`[worker] ${TOPICS.POST_DELETED} post=${event.postId}`);
+    console.log(`[consumer] ${TOPICS.POST_DELETED} post=${event.postId}`);
   }
 
   if (event.type === "repost" && event.quotedPostId) {

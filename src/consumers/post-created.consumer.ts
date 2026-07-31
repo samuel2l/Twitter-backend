@@ -1,8 +1,8 @@
 import type { EachMessagePayload } from "kafkajs";
-import { env } from "../../config/env.js";
-import { postCreatedEventSchema } from "../../lib/messaging/events.js";
-import { TOPICS } from "../../lib/messaging/topics.js";
-import { runPythonScript } from "../../lib/ml/python-runner.js";
+import { env } from "../config/env.js";
+import { postCreatedEventSchema } from "../lib/messaging/events.js";
+import { TOPICS } from "../lib/messaging/topics.js";
+import { runPythonScript } from "../lib/ml/python-runner.js";
 
 export async function handlePostCreatedMessage({
   message,
@@ -14,7 +14,7 @@ export async function handlePostCreatedMessage({
   );
 
   if (env.nodeEnv === "development") {
-    console.log(`[worker] ${TOPICS.POST_CREATED} post=${event.postId}`);
+    console.log(`[consumer] ${TOPICS.POST_CREATED} post=${event.postId}`);
   }
 
   if (event.type === "repost") {

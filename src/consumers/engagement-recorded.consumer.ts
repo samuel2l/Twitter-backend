@@ -1,14 +1,12 @@
 import type { EachMessagePayload } from "kafkajs";
-import { env } from "../../config/env.js";
+import { env } from "../config/env.js";
 import {
   engagementRecordedEventSchema,
   type EngagementRecordedEvent,
-} from "../../lib/messaging/events.js";
-import {
-  interestUpdaterAction,
-} from "../../lib/ml/engagement-interest.js";
-import { TOPICS } from "../../lib/messaging/topics.js";
-import { runPythonScript } from "../../lib/ml/python-runner.js";
+} from "../lib/messaging/events.js";
+import { interestUpdaterAction } from "../lib/ml/engagement-interest.js";
+import { TOPICS } from "../lib/messaging/topics.js";
+import { runPythonScript } from "../lib/ml/python-runner.js";
 
 async function handleEngagement(event: EngagementRecordedEvent) {
   const interestAction = interestUpdaterAction(event);
@@ -32,7 +30,7 @@ export async function handleEngagementRecordedMessage({
 
   if (env.nodeEnv === "development") {
     console.log(
-      `[worker] ${TOPICS.ENGAGEMENT_RECORDED} ${parsed.type}:${parsed.action} user=${parsed.userId}`,
+      `[consumer] ${TOPICS.ENGAGEMENT_RECORDED} ${parsed.type}:${parsed.action} user=${parsed.userId}`,
     );
   }
 

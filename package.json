@@ -5,8 +5,8 @@
   "main": "dist/index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "worker": "tsx watch src/worker/index.ts",
-    "worker:start": "node dist/worker/index.js",
+    "consumers": "tsx watch src/consumers/index.ts",
+    "consumers:start": "node dist/consumers/index.js",
     "build": "tsc",
     "start": "node dist/index.js",
     "db:generate": "drizzle-kit generate",
