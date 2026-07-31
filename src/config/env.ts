@@ -25,4 +25,7 @@ export const env = {
   mlPythonBin: process.env.ML_PYTHON_BIN ?? "python3",
   redisUrl: process.env.REDIS_URL ?? "redis://localhost:6379",
   redisEnabled: process.env.REDIS_ENABLED !== "false",
+  kafkaBrokers: (process.env.KAFKA_BROKERS ?? "localhost:9092").split(","),
+  kafkaEnabled: process.env.KAFKA_ENABLED === "true",
+  kafkaClientId: process.env.KAFKA_CLIENT_ID ?? "twitter-backend",
 };
