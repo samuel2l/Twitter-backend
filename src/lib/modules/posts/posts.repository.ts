@@ -124,7 +124,11 @@ export const postsRepository = {
       .update(post)
       .set({ deletedAt: new Date() })
       .where(and(eq(post.id, id), eq(post.userId, userId), isNull(post.deletedAt)))
-      .returning({ id: post.id });
+      .returning({
+        id: post.id,
+        type: post.type,
+        quotedPostId: post.quotedPostId,
+      });
 
     if (deleted.length > 0) {
       await postsCache.invalidate(id);

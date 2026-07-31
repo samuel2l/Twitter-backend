@@ -1,7 +1,7 @@
 import { postsRepository } from "./posts.repository.js";
 import type { CreatePostInput } from "./posts.schemas.js";
+import { eventPublisher } from "../../messaging/publisher.js";
 import { followingTimelineService } from "../timeline/following-timeline.service.js";
-import { recommenderService } from "../recommender/recommender.service.js";
 
 export class PostsServiceError extends Error {
   constructor(
@@ -39,9 +39,14 @@ export const postsService = {
       );
     }
 
-    if (input.type !== "repost") {
-      recommenderService.schedulePostEmbedding(created.id);
-    }
+    await eventPublisher.publishPostCreated({
+      postId: created.id,
+      authorId: userId,
+      createdAt: created.createdAt.toISOString(),
+      type: created.type,
+      isTopLevel: !input.replyToId,
+      quotedPostId: input.quotedPostId,
+    });
 
     return created;
   },
@@ -77,6 +82,20 @@ export const postsService = {
     const deleted = await postsRepository.softDelete(id, userId);
     if (deleted.length === 0) {
       throw new PostsServiceError("post not found or not owned by user", 404);
+    }
+
+    const removed = deleted[0];
+    if (!removed) {
+      throw new PostsServiceError("post not found or not owned by user", 404);
+    }
+
+    if (removed.type === "repost" && removed.quotedPostId) {
+      await eventPublisher.publishPostDeleted({
+        postId: removed.id,
+        authorId: userId,
+        type: removed.type,
+        quotedPostId: removed.quotedPostId,
+      });
     }
   },
 };
