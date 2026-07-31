@@ -1,6 +1,10 @@
 import { and, eq, isNull, sql } from "drizzle-orm";
 import { db } from "../../../db/index.js";
-import { interaction, post } from "../../../db/schema/index.js";
+import {
+  interaction,
+  post,
+  postEngagementCount,
+} from "../../../db/schema/index.js";
 
 export type InteractionType =
   | "like"
@@ -8,6 +12,8 @@ export type InteractionType =
   | "share"
   | "view"
   | "not_interested";
+
+type CountedInteractionType = "like" | "bookmark" | "share" | "view";
 
 export const engagementRepository = {
   findPostById(postId: string) {
@@ -69,5 +75,62 @@ export const engagementRepository = {
       .where(
         and(eq(interaction.postId, postId), eq(interaction.type, type)),
       );
+  },
+
+  findCountsByPostId(postId: string) {
+    return db.query.postEngagementCount.findFirst({
+      where: eq(postEngagementCount.postId, postId),
+      columns: {
+        likeCount: true,
+        bookmarkCount: true,
+        shareCount: true,
+        viewCount: true,
+      },
+    });
+  },
+
+  async adjustCount(
+    postId: string,
+    type: CountedInteractionType,
+    delta: 1 | -1,
+  ) {
+    const increment = delta === 1;
+    const initial = increment ? 1 : 0;
+
+    await db
+      .insert(postEngagementCount)
+      .values({
+        postId,
+        likeCount: type === "like" ? initial : 0,
+        bookmarkCount: type === "bookmark" ? initial : 0,
+        shareCount: type === "share" ? initial : 0,
+        viewCount: type === "view" ? initial : 0,
+      })
+      .onConflictDoUpdate({
+        target: postEngagementCount.postId,
+        set: {
+          ...(type === "like" && {
+            likeCount: increment
+              ? sql`${postEngagementCount.likeCount} + 1`
+              : sql`GREATEST(0, ${postEngagementCount.likeCount} - 1)`,
+          }),
+          ...(type === "bookmark" && {
+            bookmarkCount: increment
+              ? sql`${postEngagementCount.bookmarkCount} + 1`
+              : sql`GREATEST(0, ${postEngagementCount.bookmarkCount} - 1)`,
+          }),
+          ...(type === "share" && {
+            shareCount: increment
+              ? sql`${postEngagementCount.shareCount} + 1`
+              : sql`GREATEST(0, ${postEngagementCount.shareCount} - 1)`,
+          }),
+          ...(type === "view" && {
+            viewCount: increment
+              ? sql`${postEngagementCount.viewCount} + 1`
+              : sql`GREATEST(0, ${postEngagementCount.viewCount} - 1)`,
+          }),
+          updatedAt: new Date(),
+        },
+      });
   },
 };

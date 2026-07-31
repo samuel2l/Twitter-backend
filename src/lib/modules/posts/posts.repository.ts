@@ -127,6 +127,7 @@ export const postsRepository = {
       .returning({
         id: post.id,
         type: post.type,
+        replyToId: post.replyToId,
         quotedPostId: post.quotedPostId,
       });
 

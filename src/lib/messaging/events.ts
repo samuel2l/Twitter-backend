@@ -13,6 +13,7 @@ export const postDeletedEventSchema = z.object({
   postId: z.string().min(1),
   authorId: z.string().min(1),
   type: z.enum(["original", "reply", "quote", "repost"]),
+  isTopLevel: z.boolean(),
   quotedPostId: z.string().min(1).optional(),
 });
 

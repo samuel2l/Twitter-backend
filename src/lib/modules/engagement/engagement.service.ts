@@ -41,6 +41,7 @@ export const engagementService = {
       type === "like" ||
       type === "bookmark" ||
       type === "share" ||
+      type === "view" ||
       type === "not_interested"
     ) {
       await eventPublisher.publishEngagementRecorded({
@@ -95,23 +96,18 @@ export const engagementService = {
   },
 
   async counts(postId: string) {
-    const target = await engagementRepository.findPostById(postId);
-    if (!target) {
+    const postExists = await engagementRepository.findPostById(postId);
+    if (!postExists) {
       throw new EngagementServiceError("post not found", 404);
     }
 
-    const [likes, bookmarks, shares, views] = await Promise.all([
-      engagementRepository.countByPost(postId, "like"),
-      engagementRepository.countByPost(postId, "bookmark"),
-      engagementRepository.countByPost(postId, "share"),
-      engagementRepository.countByPost(postId, "view"),
-    ]);
+    const row = await engagementRepository.findCountsByPostId(postId);
 
     return {
-      likes: likes[0]?.count ?? 0,
-      bookmarks: bookmarks[0]?.count ?? 0,
-      shares: shares[0]?.count ?? 0,
-      views: views[0]?.count ?? 0,
+      likes: row?.likeCount ?? 0,
+      bookmarks: row?.bookmarkCount ?? 0,
+      shares: row?.shareCount ?? 0,
+      views: row?.viewCount ?? 0,
     };
   },
 };

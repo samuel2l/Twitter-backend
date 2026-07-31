@@ -107,6 +107,23 @@ export const followingTimelineCache = {
     });
   },
 
+  async removePostFromTimelines(followerIds: string[], postId: string) {
+    if (followerIds.length === 0) return;
+
+    await run(async (redis) => {
+      for (let i = 0; i < followerIds.length; i += FANOUT_PIPELINE_BATCH) {
+        const batch = followerIds.slice(i, i + FANOUT_PIPELINE_BATCH);
+        const pipeline = redis.pipeline();
+
+        for (const followerId of batch) {
+          pipeline.zrem(timelineKey(followerId), postId);
+        }
+
+        await pipeline.exec();
+      }
+    });
+  },
+
   listPostIds(
     userId: string,
     limit: number,

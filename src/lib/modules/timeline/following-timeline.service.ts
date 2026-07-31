@@ -38,6 +38,17 @@ export const followingTimelineService = {
     }
   },
 
+  async removePostFromFollowers(authorId: string, postId: string) {
+    const followerIds = await socialRepository.listFollowerIds(authorId);
+    await followingTimelineCache.removePostFromTimelines(followerIds, postId);
+
+    if (env.nodeEnv === "development") {
+      console.log(
+        `[cache:following] removed post=${postId} from ${followerIds.length} follower timelines`,
+      );
+    }
+  },
+
   async backfillOnFollow(followerId: string, followingId: string) {
     const posts = await timelineRepository.listTopLevelPostIdsByUser(
       followingId,

@@ -1,7 +1,6 @@
 import { postsRepository } from "./posts.repository.js";
 import type { CreatePostInput } from "./posts.schemas.js";
 import { eventPublisher } from "../../messaging/publisher.js";
-import { followingTimelineService } from "../timeline/following-timeline.service.js";
 
 export class PostsServiceError extends Error {
   constructor(
@@ -30,14 +29,6 @@ export const postsService = {
 
     const created = await postsRepository.create(userId, input, rootId);
     if (!created) throw new PostsServiceError("failed to create post", 500);
-
-    if (!input.replyToId) {
-      await followingTimelineService.fanOutPost(
-        userId,
-        created.id,
-        created.createdAt,
-      );
-    }
 
     await eventPublisher.publishPostCreated({
       postId: created.id,
@@ -89,13 +80,12 @@ export const postsService = {
       throw new PostsServiceError("post not found or not owned by user", 404);
     }
 
-    if (removed.type === "repost" && removed.quotedPostId) {
-      await eventPublisher.publishPostDeleted({
-        postId: removed.id,
-        authorId: userId,
-        type: removed.type,
-        quotedPostId: removed.quotedPostId,
-      });
-    }
+    await eventPublisher.publishPostDeleted({
+      postId: removed.id,
+      authorId: userId,
+      type: removed.type,
+      isTopLevel: removed.replyToId === null,
+      quotedPostId: removed.quotedPostId ?? undefined,
+    });
   },
 };

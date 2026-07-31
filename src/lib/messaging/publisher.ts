@@ -8,15 +8,14 @@ import type {
   PostCreatedEvent,
   PostDeletedEvent,
 } from "./events.js";
-import {
-  interestUpdaterAction,
-} from "../ml/engagement-interest.js";
+import { handleEngagementRecordedSideEffects } from "../modules/engagement/engagement-recorded.side-effects.js";
+import { handlePostCreatedSideEffects } from "../modules/posts/post-created.side-effects.js";
+import { handlePostDeletedSideEffects } from "../modules/posts/post-deleted.side-effects.js";
 import { TOPICS } from "./topics.js";
 
 const moduleDir = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(moduleDir, "../../..");
 
-//fallback for kafka
 function runPythonScriptDetached(scriptName: string, args: string[]) {
   if (!env.mlEmbedEnabled) return;
 
@@ -48,20 +47,6 @@ function runPythonScriptDetached(scriptName: string, args: string[]) {
   child.unref();
 }
 
-
-function handleEngagementFallback(event: EngagementRecordedEvent) {
-  if (!env.mlEmbedEnabled) return;
-
-  const interestAction = interestUpdaterAction(event);
-  if (interestAction) {
-    runPythonScriptDetached("interest_updater.py", [
-      event.userId,
-      event.postId,
-      interestAction,
-    ]);
-  }
-}
-
 async function publish(topic: string, key: string, value: unknown) {
   const producer = await getKafkaProducer();
   if (!producer) return false;
@@ -91,18 +76,7 @@ export const eventPublisher = {
       }
     }
 
-    if (event.type === "repost") {
-      if (event.quotedPostId) {
-        runPythonScriptDetached("interest_updater.py", [
-          event.authorId,
-          event.quotedPostId,
-          "repost",
-        ]);
-      }
-      return;
-    }
-
-    runPythonScriptDetached("embed_post.py", [event.postId]);
+    await handlePostCreatedSideEffects(event);
   },
 
   async publishPostDeleted(event: PostDeletedEvent) {
@@ -116,13 +90,7 @@ export const eventPublisher = {
       }
     }
 
-    if (event.type === "repost" && event.quotedPostId) {
-      runPythonScriptDetached("interest_updater.py", [
-        event.authorId,
-        event.quotedPostId,
-        "unrepost",
-      ]);
-    }
+    await handlePostDeletedSideEffects(event);
   },
 
   async publishEngagementRecorded(event: EngagementRecordedEvent) {
@@ -142,6 +110,6 @@ export const eventPublisher = {
       }
     }
 
-    handleEngagementFallback(event);
+    await handleEngagementRecordedSideEffects(event);
   },
 };
