@@ -2,7 +2,7 @@ import {
   engagementRepository,
   type InteractionType,
 } from "./engagement.repository.js";
-import { recommenderService } from "../recommender/recommender.service.js";
+import { eventPublisher } from "../../messaging/publisher.js";
 
 export class EngagementServiceError extends Error {
   constructor(
@@ -43,11 +43,12 @@ export const engagementService = {
       type === "share" ||
       type === "not_interested"
     ) {
-      recommenderService.scheduleInterestUpdate(userId, postId, type);
-    }
-
-    if (type === "like" || type === "bookmark") {
-      recommenderService.scheduleUserEmbedding(userId);
+      await eventPublisher.publishEngagementRecorded({
+        userId,
+        postId,
+        type,
+        action: "add",
+      });
     }
 
     return created;
@@ -68,7 +69,12 @@ export const engagementService = {
     }
 
     if (type === "like" || type === "bookmark") {
-      recommenderService.scheduleUserEmbedding(userId);
+      await eventPublisher.publishEngagementRecorded({
+        userId,
+        postId,
+        type,
+        action: "remove",
+      });
     }
   },
 
