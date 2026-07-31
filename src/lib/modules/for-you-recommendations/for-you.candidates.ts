@@ -1,6 +1,5 @@
 import { interestRepository } from "../recommender/interest.repository.js";
 import { mergeInterestPools } from "../recommender/merger.js";
-import { recommenderRepository } from "../recommender/recommender.repository.js";
 import { forYouRetrievalRepository } from "./for-you-recommendations.repository.js";
 
 export const FOR_YOU_WINDOW_HOURS = 72;
@@ -31,15 +30,6 @@ export async function buildForYouPersonalizedCandidates(
     );
 
     return mergeInterestPools(pools, CANDIDATE_LIMIT);
-  }
-
-  const hasLegacyEmbedding = await recommenderRepository.hasUserEmbedding(userId);
-  if (hasLegacyEmbedding) {
-    return forYouRetrievalRepository.listLegacyPersonalized(
-      userId,
-      sessionId,
-      CANDIDATE_LIMIT,
-    );
   }
 
   return [];

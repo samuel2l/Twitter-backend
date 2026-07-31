@@ -71,35 +71,6 @@ export const forYouRetrievalRepository = {
     }));
   },
 
-  async listLegacyPersonalized(
-    userId: string,
-    sessionId: string,
-    limit: number,
-  ) {
-    const result = await pool.query<{ id: string; distance: number }>(
-      `
-        SELECT
-          p.id,
-          (pe.embedding <=> ue.embedding) AS distance
-        FROM post p
-        INNER JOIN post_embedding pe ON pe.post_id = p.id
-        INNER JOIN user_embedding ue ON ue.user_id = $1
-        WHERE p.deleted_at IS NULL
-          AND p.reply_to_id IS NULL
-          AND p.user_id <> $1
-          ${exclusionSql("$1", "$2")}
-        ORDER BY distance ASC, p.id ASC
-        LIMIT $3
-      `,
-      [userId, sessionId, limit],
-    );
-
-    return result.rows.map((row) => ({
-      id: row.id,
-      score: Number(row.distance),
-    }));
-  },
-
   async listExploration(userId: string, sessionId: string, limit: number) {
     const result = await pool.query<{ id: string; score: number }>(
       `
