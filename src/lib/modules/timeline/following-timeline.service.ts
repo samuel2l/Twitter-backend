@@ -1,4 +1,5 @@
 import { env } from "../../../config/env.js";
+import { notifyFollowingNewPost } from "../../realtime/following-notify.js";
 import { socialRepository } from "../social/social.repository.js";
 import {
   followingTimelineCache,
@@ -30,6 +31,8 @@ export const followingTimelineService = {
       postId,
       createdAt,
     );
+
+    await notifyFollowingNewPost(followerIds, { postId, authorId });
 
     if (env.nodeEnv === "development") {
       console.log(

@@ -40,6 +40,7 @@ export function createApp(): Express {
       status,
       redis,
       kafka,
+      websocketUrl: env.websocketUrl,
     });
   });
 
