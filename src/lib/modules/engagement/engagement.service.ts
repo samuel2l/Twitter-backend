@@ -56,7 +56,7 @@ export const engagementService = {
   },
 
   async remove(userId: string, postId: string, type: InteractionType) {
-    if (type === "view" || type === "not_interested") {
+    if (type === "view" || type === "share" || type === "not_interested") {
       throw new EngagementServiceError(`cannot remove ${type}s`, 400);
     }
 

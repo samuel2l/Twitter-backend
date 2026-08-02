@@ -80,11 +80,6 @@ engagementRoutes.delete(
 );
 
 engagementRoutes.post("/:postId/share", requireAuth, createAddHandler("share"));
-engagementRoutes.delete(
-  "/:postId/share",
-  requireAuth,
-  createRemoveHandler("share"),
-);
 
 engagementRoutes.post("/:postId/view", requireAuth, createAddHandler("view"));
 
