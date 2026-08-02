@@ -7,6 +7,7 @@ export const postCreatedEventSchema = z.object({
   type: z.enum(["original", "reply", "quote", "repost"]),
   isTopLevel: z.boolean(),
   quotedPostId: z.string().min(1).optional(),
+  replyToId: z.string().min(1).optional(),
 });
 
 export const postDeletedEventSchema = z.object({

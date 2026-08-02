@@ -37,6 +37,7 @@ export const postsService = {
       type: created.type,
       isTopLevel: !input.replyToId,
       quotedPostId: input.quotedPostId,
+      replyToId: input.replyToId,
     });
 
     return created;

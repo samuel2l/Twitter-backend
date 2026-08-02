@@ -19,6 +19,13 @@ export const postsRepository = {
     });
   },
 
+  findAuthorId(id: string) {
+    return db.query.post.findFirst({
+      where: and(eq(post.id, id), isNull(post.deletedAt)),
+      columns: { userId: true },
+    });
+  },
+
   async create(userId: string, input: CreatePostInput, rootId: string | null) {
     const postId = crypto.randomUUID();
 

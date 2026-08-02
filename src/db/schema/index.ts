@@ -19,5 +19,6 @@ export * from "./posts.js";
 export * from "./social.js";
 export * from "./engagement.js";
 export * from "./post-engagement-count.js";
+export * from "./notifications.js";
 export * from "./recommendation-vectors.js";
 export * from "./feed.js";

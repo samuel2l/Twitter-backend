@@ -8,6 +8,7 @@ import { auth } from "./lib/modules/auth/auth.js";
 import { authRoutes } from "./lib/modules/auth/auth.routes.js";
 import { engagementRoutes } from "./lib/modules/engagement/engagement.routes.js";
 import { mediaRoutes } from "./lib/modules/media/media.routes.js";
+import { notificationsRoutes } from "./lib/modules/notifications/notifications.routes.js";
 import { onboardingRoutes } from "./lib/modules/onboarding/onboarding.routes.js";
 import { postsRoutes } from "./lib/modules/posts/posts.routes.js";
 import { socialRoutes } from "./lib/modules/social/social.routes.js";
@@ -49,6 +50,7 @@ export function createApp(): Express {
   app.use("/api/posts", postsRoutes);
   app.use("/api/posts", engagementRoutes);
   app.use("/api/social", socialRoutes);
+  app.use("/api/notifications", notificationsRoutes);
   app.use("/api/topics", topicsRoutes);
   app.use("/api/onboarding", onboardingRoutes);
   app.use("/api/timeline", timelineRoutes);

@@ -8,18 +8,29 @@ export const followingNewPostsMessageSchema = z.object({
 
 export const connectedMessageSchema = z.object({
   type: z.literal("connected"),
+  userId: z.string().min(1),
 });
 
-export const realtimeMessageSchema = z.discriminatedUnion("type", [
-  followingNewPostsMessageSchema,
-  connectedMessageSchema,
-]);
+export const notificationMessageSchema = z.object({
+  type: z.enum([
+    "notification:like",
+    "notification:reply",
+    "notification:quote",
+    "notification:repost",
+    "notification:follow",
+  ]),
+  notificationId: z.string().min(1),
+  actorId: z.string().min(1),
+  postId: z.string().min(1).optional(),
+  actorPostId: z.string().min(1).optional(),
+});
 
 export type FollowingNewPostsMessage = z.infer<
   typeof followingNewPostsMessageSchema
 >;
-export type RealtimeMessage = z.infer<typeof realtimeMessageSchema>;
+export type NotificationMessage = z.infer<typeof notificationMessageSchema>;
 
 export type RealtimeOutboundMessage =
   | FollowingNewPostsMessage
+  | NotificationMessage
   | { type: "connected"; userId: string };
