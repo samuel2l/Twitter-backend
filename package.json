@@ -25,6 +25,7 @@
     "dotenv": "^17.4.2",
     "drizzle-orm": "^0.45.2",
     "express": "^5.2.1",
+    "firebase-admin": "^14.2.0",
     "ioredis": "^5.11.1",
     "kafkajs": "^2.2.4",
     "multer": "^2.2.0",

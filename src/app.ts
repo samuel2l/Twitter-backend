@@ -6,6 +6,7 @@ import { pingKafka } from "./config/kafka.js";
 import { pingRedis } from "./config/redis.js";
 import { auth } from "./lib/modules/auth/auth.js";
 import { authRoutes } from "./lib/modules/auth/auth.routes.js";
+import { devicesRoutes } from "./lib/modules/devices/devices.routes.js";
 import { engagementRoutes } from "./lib/modules/engagement/engagement.routes.js";
 import { mediaRoutes } from "./lib/modules/media/media.routes.js";
 import { notificationsRoutes } from "./lib/modules/notifications/notifications.routes.js";
@@ -42,6 +43,7 @@ export function createApp(): Express {
       redis,
       kafka,
       websocketUrl: env.websocketUrl,
+      fcm: env.fcmEnabled ? "enabled" : "disabled",
     });
   });
 
@@ -51,6 +53,7 @@ export function createApp(): Express {
   app.use("/api/posts", engagementRoutes);
   app.use("/api/social", socialRoutes);
   app.use("/api/notifications", notificationsRoutes);
+  app.use("/api/devices", devicesRoutes);
   app.use("/api/topics", topicsRoutes);
   app.use("/api/onboarding", onboardingRoutes);
   app.use("/api/timeline", timelineRoutes);
