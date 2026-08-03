@@ -35,4 +35,9 @@ export const env = {
   kafkaBrokers: (process.env.KAFKA_BROKERS ?? "localhost:9092").split(","),
   kafkaEnabled: process.env.KAFKA_ENABLED === "true",
   kafkaClientId: process.env.KAFKA_CLIENT_ID ?? "twitter-backend",
+  fcmEnabled: process.env.FCM_ENABLED === "true",
+  firebaseProjectId: process.env.FIREBASE_PROJECT_ID,
+  firebaseClientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+  /** Raw JSON string or path-friendly; prefer FIREBASE_PRIVATE_KEY with \n escapes */
+  firebasePrivateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
 };
