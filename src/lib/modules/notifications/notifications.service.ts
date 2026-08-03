@@ -1,4 +1,8 @@
+import { eq } from "drizzle-orm";
 import { publishUserNotification } from "../../realtime/redis-pubsub.js";
+import { sendPushNotification } from "../../push/fcm.js";
+import { db } from "../../../db/index.js";
+import { user } from "../../../db/schema/index.js";
 import {
   notificationsRepository,
   type CreateNotificationInput,
@@ -30,6 +34,14 @@ export class NotificationsServiceError extends Error {
   }
 }
 
+async function actorDisplayName(actorId: string) {
+  const row = await db.query.user.findFirst({
+    where: eq(user.id, actorId),
+    columns: { name: true },
+  });
+  return row?.name ?? "Someone";
+}
+
 export const notificationsService = {
   async notify(input: CreateNotificationInput) {
     if (input.recipientId === input.actorId) return null;
@@ -44,6 +56,19 @@ export const notificationsService = {
       postId: input.postId,
       actorPostId: input.actorPostId,
     });
+
+    void (async () => {
+      const actorName = await actorDisplayName(input.actorId);
+      await sendPushNotification({
+        recipientId: input.recipientId,
+        notificationId: created.id,
+        type: input.type,
+        actorId: input.actorId,
+        actorName,
+        ...(input.postId ? { postId: input.postId } : {}),
+        ...(input.actorPostId ? { actorPostId: input.actorPostId } : {}),
+      });
+    })();
 
     return created;
   },
