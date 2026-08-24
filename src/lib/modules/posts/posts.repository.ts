@@ -96,6 +96,19 @@ export const postsRepository = {
     });
   },
 
+  listByUserId(userId: string, limit: number) {
+    return db.query.post.findMany({
+      where: and(
+        isNull(post.deletedAt),
+        eq(post.userId, userId),
+        isNull(post.replyToId),
+      ),
+      with: postFeedWith,
+      orderBy: [desc(post.createdAt), desc(post.id)],
+      limit: limit + 1,
+    });
+  },
+
   async findManyByIds(ids: string[]) {
     if (ids.length === 0) return [];
 

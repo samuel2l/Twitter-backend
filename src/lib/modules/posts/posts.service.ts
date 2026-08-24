@@ -70,6 +70,16 @@ export const postsService = {
     };
   },
 
+  async getByUser(userId: string, limit: number) {
+    const rows = await postsRepository.listByUserId(userId, limit);
+    const hasMore = rows.length > limit;
+    const items = hasMore ? rows.slice(0, limit) : rows;
+    return {
+      items,
+      nextCursor: hasMore ? items[items.length - 1]?.id : undefined,
+    };
+  },
+
   async delete(id: string, userId: string) {
     const deleted = await postsRepository.softDelete(id, userId);
     if (deleted.length === 0) {

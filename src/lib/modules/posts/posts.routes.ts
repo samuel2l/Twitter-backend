@@ -49,6 +49,28 @@ postsRoutes.get("/", async (req: Request, res: Response) => {
   }
 });
 
+postsRoutes.get("/user/:userId", async (req: Request, res: Response) => {
+  try {
+    const userId = req.params.userId;
+    if (!userId) {
+      res.status(400).json({ error: "userId required" });
+      return;
+    }
+
+    const parsed = feedQuerySchema.safeParse(req.query);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.flatten() });
+      return;
+    }
+
+    res.json(
+      await postsService.getByUser(userId as string, parsed.data.limit),
+    );
+  } catch (error) {
+    handleError(error, res);
+  }
+});
+
 postsRoutes.get("/:id", async (req: Request, res: Response) => {
   try {
     const id = req.params.id;

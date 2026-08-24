@@ -61,6 +61,23 @@ socialRoutes.delete(
 );
 
 socialRoutes.get(
+  "/users/:userId",
+  async (req: Request, res: Response) => {
+    try {
+      const params = userIdParamSchema.safeParse(req.params);
+      if (!params.success) {
+        res.status(400).json({ error: params.error.flatten() });
+        return;
+      }
+
+      res.json(await socialService.getUser(params.data.userId));
+    } catch (error) {
+      handleError(error, res);
+    }
+  },
+);
+
+socialRoutes.get(
   "/following/:userId/status",
   requireAuth,
   async (req: Request, res: Response) => {

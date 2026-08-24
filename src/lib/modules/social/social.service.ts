@@ -62,6 +62,14 @@ export const socialService = {
     return { following: Boolean(row) };
   },
 
+  async getUser(userId: string) {
+    const target = await socialRepository.findUserById(userId);
+    if (!target) {
+      throw new SocialServiceError("user not found", 404);
+    }
+    return target;
+  },
+
   async getFollowers(userId: string, limit: number) {
     const target = await socialRepository.findUserById(userId);
     if (!target) {
