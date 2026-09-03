@@ -1,9 +1,11 @@
 # Twitter backend
 
+
 API for a Twitter-style app: posts, follows, engagement, notifications, and two feeds — **Following** (people you follow) and **For You** (embedding-based recommendations).
 
 Stack: **Express**, **Postgres** (Drizzle + pgvector), **Better Auth**, **Redis**, optional **Kafka**, **WebSockets**, **FCM**, **Cloudinary**, and **Python** embedding jobs.
 
+Mobile app: [Twitter Mobile](https://github.com/samuel2l/Twitter-Mobile).
 ## What it does
 
 - **Auth** — email/password and Google via Better Auth (cookie sessions).
